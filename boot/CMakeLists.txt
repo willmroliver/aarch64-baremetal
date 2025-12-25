@@ -1,10 +1,14 @@
 add_executable(${BOOT_EXEC} 
-  boot.s
+  ${MACHINE}/boot.s
   boot.c
 )
 
+add_subdirectory(${MACHINE})
+
 target_link_options(${BOOT_EXEC} 
-  PUBLIC -T ${CMAKE_CURRENT_SOURCE_DIR}/linker.ld
+  PUBLIC 
+    -T ${CMAKE_CURRENT_SOURCE_DIR}/linker.ld
+    -Wl,-defsym,LOAD_ADDRESS=${LOAD_ADDRESS}
 )
 
 target_link_libraries(${BOOT_EXEC} PRIVATE ${DRIVERS_LIB})

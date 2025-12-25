@@ -24,6 +24,9 @@ set(CMAKE_ASM_FLAGS "${COMMON_FLAGS}")
 set(DRIVERS_LIB drivers)
 add_subdirectory(${DRIVERS_LIB})
 
-set(BOOT_EXEC boot)
-add_subdirectory(${BOOT_EXEC})
+function(add_machine MACHINE)
+  set(BOOT_EXEC boot_${MACHINE})
+  add_subdirectory(boot)
+endfunction()
 
+add_machine(qemu-arm64-virt)

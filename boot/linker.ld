@@ -1,44 +1,49 @@
-MEMORY
-{
-  FLASH (RX) : ORIGIN = 0x0, LENGTH = 4M
-  RAM (!RX) : ORIGIN = 0x40000000, LENGTH = 126M 
-} 
+KERNEL_VMA = 0xfff0000000000000 ;
 
-ENTRY(_start)
+ENTRY(_sboot)
 
 SECTIONS
 {
-  . = ORIGIN(RAM);
+  . = LOAD_ADDRESS ;
+  _ram_start = . ;
 
-  .boot ALIGN(0x4) : {
-    _start = . ;
-    *(.boot) ;
+  .boot ALIGN(0x4) : AT(LOAD_ADDRESS) {
+    _sboot = . ;
+    *(.boot*) ;
     _eboot = . ;
-  } > RAM
+    _stables = . ;
+    . = . + 0x10000;
+    _etables = . ;
+    . = . + 0x4000;
+    _boot_stack_top = . ;
+  }
 
-  .text ALIGN(0x4) : {
+  . = KERNEL_VMA ;
+  _skernel = . ;
+
+  .text ALIGN(0x4) : AT(ADDR(.boot) + SIZEOF(.boot)) {
     _stext = . ;
     *(.text*) ;
     _etext = . ;
-  } > RAM
+  }
 
-  .data ALIGN(0x4) : {
+  .data ALIGN(0x4) : AT(ADDR(.text) + SIZEOF(.text)) {
     _sdata = . ;
     *(.data*) ;
     _edata = . ;
-  } > RAM
+  }
 
-  .bss ALIGN(0x4) : {
+  .bss ALIGN(0x4) : AT(ADDR(.data) + SIZEOF(.data)){
     _sbss = . ;
-    *(.bss*) ;
+    *(.bss*) ; FILL(0x0)
     _ebss = . ;
-  } > RAM
+  }
 
-  .rodata ALIGN(0x4) : {
+  .rodata ALIGN(0x4) : AT(ADDR(.bss) + SIZEOF(.bss)) {
     _srodata = . ;
     *(.rodata*) ; 
     _erodata = . ;
-  } > RAM
+  }
 
-  _stack_top = ORIGIN(RAM) + LENGTH(RAM);
+  _end = . ; 
 }
